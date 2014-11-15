@@ -664,6 +664,17 @@ class BaseAggregateTestCase(TestCase):
         vals = qs.aggregate(average_top3_rating=Avg('rating'))['average_top3_rating']
         self.assertAlmostEqual(vals, 4.5, places=2)
 
+    def test_aggregation_with_limit_and_relation(self):
+        """
+        Check that aggregation with relation over sliced queryset works
+        correctly.
+        """
+        qs = Book.objects.all().order_by('id')[0:3]
+        vals = qs.aggregate(
+            average_num_awards=Avg('publisher__num_awards'))[
+            'average_num_awards']
+        self.assertAlmostEqual(vals, 2.33, places=2)
+
     def test_ticket11881(self):
         """
         Check that subqueries do not needlessly contain ORDER BY, SELECT FOR UPDATE
